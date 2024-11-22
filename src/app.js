@@ -10,6 +10,6 @@ app.use(cors({origin: process.env.FRONTEND_URL, credentials: true}))
 app.set('port', process.env.PORT || 5000)
 
 app.use("/api/users", require('./routes/user.routes'))
-app.use('/api/tasks', require('./routes/tasks.routes'))
+app.use('/api/facts', require('./routes/facts.routes'))
 
 module.exports = app

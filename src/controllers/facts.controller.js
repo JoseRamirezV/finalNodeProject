@@ -1,11 +1,22 @@
 const Fact = require('#models/fact');
 
 module.exports = {
+   seed: async (req, res) => {
+      try {
+         await Fact.deleteMany();
+         const data = req.body;
+         await Fact.insertMany([...data]);
+         res.status(201).json({ ok: true });
+      } catch (error) {
+         res.status(500).json({ error });
+      }
+   },
+
    get: async (req, res) => {
       try {
-         const userEmail = req.params.email;
-         const tasks = await Fact.find({ userEmail });
-         res.status(200).json(tasks);
+         // const userEmail = req.params.email;
+         const facts = await Fact.find();
+         res.status(200).json(facts);
       } catch (error) {
          res.status(500).json({ error });
       }
@@ -14,11 +25,11 @@ module.exports = {
    add: async (req, res) => {
       try {
          const newFact = new Fact(req.body);
-         const data = await newFact.save();
+         const fact = await newFact.save();
 
          res.status(200).json({
-            fact: { ...data._doc },
-            message: 'Added',
+            fact,
+            ok: true,
          });
       } catch (error) {
          console.log(error.message);
@@ -36,8 +47,7 @@ module.exports = {
             },
             { new: true }
          );
-
-         res.status(200).json({ task: fact });
+         res.status(200).json({ ok: true, fact });
       } catch (error) {
          res.status(500).json({ error: "couldn't update" });
       }
@@ -46,10 +56,10 @@ module.exports = {
    delete: async (req, res) => {
       try {
          const id = req.params.id;
-         await Fact.delete({
+         await Fact.deleteOne({
             _id: id,
          });
-         res.status(200).json({ message: 'Deleted' });
+         res.status(200).json({ ok: true });
       } catch (error) {
          res.status(500).json({ error: error.message });
       }
