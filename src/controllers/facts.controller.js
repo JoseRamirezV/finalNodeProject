@@ -1,10 +1,11 @@
 const Fact = require('#models/fact');
+const mockFacts = require('../mock.json')
 
 module.exports = {
    seed: async (req, res) => {
       try {
          await Fact.deleteMany();
-         const data = req.body;
+         const data = mockFacts;
          await Fact.insertMany([...data]);
          res.status(201).json({ ok: true });
       } catch (error) {
@@ -14,8 +15,7 @@ module.exports = {
 
    get: async (req, res) => {
       try {
-         // const userEmail = req.params.email;
-         const facts = await Fact.find();
+         const facts = await Fact.find().sort({updatedAt: -1});
          res.status(200).json(facts);
       } catch (error) {
          res.status(500).json({ error });
@@ -64,41 +64,4 @@ module.exports = {
          res.status(500).json({ error: error.message });
       }
    },
-
-   // delete: async (req, res) => {
-   //    try {
-   //       const data = req.body;
-   //       const ids = data.map((id) => {
-   //          if (scheduledJobs[id]) scheduledJobs[id].cancel();
-   //          return new Types.ObjectId(`${id}`);
-   //       });
-   //       await Fact.deleteMany({
-   //          _id: {
-   //             $in: ids,
-   //          },
-   //       });
-   //       res.status(200).json({ message: 'Deleted' });
-   //    } catch (error) {
-   //       res.status(500).json({ error: error.message });
-   //    }
-   // },
-};
-
-const notifyToday = ({
-   _id,
-   notificationDate,
-   limitDate,
-   userEmail,
-   title,
-   description,
-}) => {
-   const date = new Date(notificationDate);
-
-   scheduleJob(`${_id}`, date, async () => {
-      await sendEmail(userEmail, title, 'Notification', {
-         description,
-         limitDate: moment(limitDate).format('DD [de] MMMM [del] YYYY'),
-      });
-      await Fact.updateOne({ _id }, { notified: true });
-   });
 };
